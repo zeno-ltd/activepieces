@@ -5,9 +5,9 @@ const main = async () => {
     console.log('update pieces metadata: started')
 
     const piecesMetadata = await generateMetadata()
-    await insertMetadata(piecesMetadata)
+    // await insertMetadata(piecesMetadata)
 
-    console.log('update pieces metadata: completed')
+    console.log('update pieces metadata: completed',piecesMetadata)
     process.exit()
 }
 

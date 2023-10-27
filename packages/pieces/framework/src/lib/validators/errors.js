@@ -1,0 +1,28 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ErrorMessages = void 0;
+var ErrorMessages;
+(function (ErrorMessages) {
+    ErrorMessages["REQUIRED"] = "Expected value, but found value: {userInput}";
+    ErrorMessages["EMAIL"] = "Invalid Email format: {userInput}";
+    ErrorMessages["ISO_DATE"] = "Expected ISO string, but found value: {userInput}";
+    ErrorMessages["FILE"] = "Expected file url or base64 with mimeType, but found value: {userInput}";
+    ErrorMessages["NUMBER"] = "Expected number, but found value: {userInput}";
+    ErrorMessages["WHOLE_NUMBER"] = "Expected whole number, but found value: {userInput}";
+    ErrorMessages["MAX_LENGTH"] = "The value: {userInput} may not be greater than {length} characters";
+    ErrorMessages["MIN_LENGTH"] = "The value: {userInput} must be at least {length} characters";
+    ErrorMessages["MAX"] = "The value: {userInput} must be {max} or less";
+    ErrorMessages["MIN"] = "The value: {userInput} must be {min} or more";
+    ErrorMessages["MIN_DATE"] = "The date {userInput} must be after {min}";
+    ErrorMessages["MAX_DATE"] = "The date {userInput} must be before {max}";
+    ErrorMessages["IN_RANGE"] = "The value: {userInput} must be at least {min} and less than or equal {max}";
+    ErrorMessages["IN_DATE_RANGE"] = "The date {userInput} must be between {min} and {max}";
+    ErrorMessages["URL"] = "The value: {userInput} is not a valid URL";
+    ErrorMessages["REGEX"] = "The value: {userInput} format is invalid";
+    ErrorMessages["PROHIBIT_REGEX"] = "The value: {userInput} is not allowed";
+    ErrorMessages["IMAGE"] = "The {property} value must be an image";
+    ErrorMessages["ONE_OF"] = "The {userInput} is not a valid value, valid choices are: {choices}";
+    ErrorMessages["REQUIRE_KEYS"] = "The following keys are required: {keys}";
+    ErrorMessages["SIZE"] = "The {property} size must be less than 0:{size}KB";
+    ErrorMessages["NON_ZERO"] = "The value: {userInput} must be a non-zero value";
+})(ErrorMessages || (exports.ErrorMessages = ErrorMessages = {}));

@@ -1,0 +1,44 @@
+{
+  "name": "pieces-wati",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/wati/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/wati",
+        "tsConfig": "packages/pieces/wati/tsconfig.lib.json",
+        "packageJson": "packages/pieces/wati/package.json",
+        "main": "packages/pieces/wati/src/index.ts",
+        "assets": [
+          "packages/pieces/wati/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "updateBuildableProjectDepsInPackageJson": true
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-wati {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/wati/**/*.ts",
+          "packages/pieces/wati/package.json"
+        ]
+      }
+    }
+  },
+  "tags": []
+}

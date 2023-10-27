@@ -11,7 +11,8 @@
     "dev:backend": "FORCE_COLOR=true concurrently -n \"API,ENG\" -c \"bgGreen.bold,bgRed.bold\" \"npm:serve:backend\" \"npm:serve:engine\"",
     "start": "npm i && npm run dev",
     "publish-piece": "npx ts-node tools/scripts/utils/publish-piece.ts",
-    "create-piece": "npx ts-node tools/scripts/generate-new-piece.ts"
+    "create-piece": "npx ts-node tools/scripts/generate-new-piece.ts",
+    "piece-metadata": "npx ts-node tools/scripts/update-pieces-metadata/main.ts"
   },
   "private": true,
   "dependencies": {
