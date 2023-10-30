@@ -43,7 +43,7 @@ export const sendTemplateMessage = createAction({
             body: {
                 template_name: templateName,
                 broadcast_name: broadcastName,
-                parameters: [properties],
+                parameters: properties,
             },
             queryParams: {
                 whatsappNumber: whatsappNumber
