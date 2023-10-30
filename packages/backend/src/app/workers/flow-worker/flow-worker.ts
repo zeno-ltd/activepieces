@@ -90,7 +90,7 @@ const finishExecution = async (params: FinishExecutionParams): Promise<void> => 
     else {
         await flowRunService.finish({
             flowRunId,
-            status: executionOutput.status,
+            status: getTerminalStatus(executionOutput.status),
             terminationReason: getTerminationReason(executionOutput),
             tasks: executionOutput.tasks,
             logsFileId: logFileId,
@@ -99,9 +99,14 @@ const finishExecution = async (params: FinishExecutionParams): Promise<void> => 
     }
 }
 
+const getTerminalStatus = (executionOutputStatus: ExecutionOutputStatus): ExecutionOutputStatus => {
+    return executionOutputStatus == ExecutionOutputStatus.STOPPED ?  ExecutionOutputStatus.SUCCEEDED : executionOutputStatus
+}
+
+
 const getTerminationReason = (executionOutput: ExecutionOutput): RunTerminationReason | undefined => {
-    if (executionOutput.status === ExecutionOutputStatus.SUCCEEDED) {
-        return isNil(executionOutput.executionState) ? undefined : RunTerminationReason.STOPPED_BY_HOOK
+    if (executionOutput.status === ExecutionOutputStatus.STOPPED) {
+        return RunTerminationReason.STOPPED_BY_HOOK
     }
     return undefined
 }

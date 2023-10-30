@@ -111,11 +111,11 @@ export const flowRunService = {
         })
     },
     async finish(
-        { terminationReason, flowRunId, status, tasks, logsFileId, tags }: {
+        { flowRunId, status, tasks, logsFileId, tags, terminationReason }: {
             flowRunId: FlowRunId
             status: ExecutionOutputStatus
-            terminationReason?: RunTerminationReason
             tasks: number
+            terminationReason?: RunTerminationReason
             tags: string[]
             logsFileId: FileId | null
         },
@@ -124,8 +124,8 @@ export const flowRunService = {
             ...spreadIfDefined('logsFileId', logsFileId),
             status,
             tasks,
-            tags,
             terminationReason,
+            tags,
             finishTime: new Date().toISOString(),
         })
         const flowRun = (await this.getOne({ id: flowRunId, projectId: undefined }))!
