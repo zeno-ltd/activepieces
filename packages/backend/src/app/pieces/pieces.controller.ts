@@ -1,5 +1,5 @@
 import { FastifyPluginAsyncTypebox, Type } from '@fastify/type-provider-typebox'
-import { ActivepiecesError, AddPieceRequestBody, ApEdition, ErrorCode, GetPieceRequestParams, GetPieceRequestQuery, GetPieceRequestWithScopeParams, ListPiecesRequestQuery, PieceOptionRequest } from '@activepieces/shared'
+import { PieceRunRequestBody, ActivepiecesError, AddPieceRequestBody, ApEdition, ErrorCode, GetPieceRequestParams, GetPieceRequestQuery, GetPieceRequestWithScopeParams, ListPiecesRequestQuery, PieceOptionRequest } from '@activepieces/shared'
 import { engineHelper } from '../helper/engine-helper'
 import { system } from '../helper/system/system'
 import { SystemProp } from '../helper/system/system-prop'
@@ -9,6 +9,7 @@ import { flagService } from '../flags/flag.service'
 import { pieceService } from './piece-service'
 import { PieceMetadataModel, PieceMetadataModelSummary } from './piece-metadata-entity'
 import { getServerUrl } from '../helper/public-ip-utils'
+
 
 const statsEnabled = system.getBoolean(SystemProp.STATS_ENABLED)
 
@@ -130,10 +131,30 @@ export const piecesController: FastifyPluginAsyncTypebox = async (app) => {
             id: req.params.id,
         })
     })
+
+    app.post('/run', PieceRunRequest, async (req) => {
+        const { projectId } = req.principal
+
+        const result = await pieceService.run({
+            step: req.body.piece,
+            projectId,
+        })
+        return result
+    })
 }
 
 const AddPieceRequest = {
     schema: {
         body: AddPieceRequestBody,
+    },
+}
+
+
+const PieceRunRequest = {
+    schema: {
+        body: Type.Object({
+            projectId: Type.String(),
+            piece: PieceRunRequestBody,  
+        }),
     },
 }

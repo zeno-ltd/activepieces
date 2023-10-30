@@ -6,7 +6,13 @@ import {
     PiecePackage,
     PieceType,
     ProjectId,
+    PieceAction,
+    Action,
+    StepRunResponse,
+    isNil,
+    ExecutePieceOperation,
 } from '@activepieces/shared'
+import { getServerUrl } from '../../helper/public-ip-utils'
 import { engineHelper } from '../../helper/engine-helper'
 import { pieceMetadataService } from '../piece-metadata-service'
 import { PieceMetadataModel } from '../piece-metadata-entity'
@@ -51,6 +57,9 @@ export const pieceService = {
             })
         }
     },
+    async run({ step, projectId }: RunParams<PieceAction>): Promise<StepRunResponse> {
+        return executePiece({ step, projectId })
+    },
 }
 
 const getPiecePackage = async (params: AddPieceParams): Promise<PiecePackage> => {
@@ -65,6 +74,40 @@ const getPiecePackage = async (params: AddPieceParams): Promise<PiecePackage> =>
                 pieceType: PieceType.CUSTOM,
             }
         }
+    }
+}
+
+async function executePiece({ step, projectId }: RunParams<PieceAction>): Promise<StepRunResponse> {
+    const { packageType, pieceType, pieceName, pieceVersion, actionName, input } = step.settings
+    if (isNil(actionName)) {
+        throw new ActivepiecesError({
+            code: ErrorCode.VALIDATION,
+            params: {
+                message: 'actionName is undefined',
+            },
+        })
+    }
+
+    const operation: ExecutePieceOperation = {
+        serverUrl: await getServerUrl(),
+        piece: {
+            packageType,
+            pieceType,
+            pieceName,
+            pieceVersion,
+            projectId,
+        },
+        actionName,
+        input,
+        projectId,
+    }
+
+    const { result, standardError, standardOutput } = await engineHelper.executePiece(operation)
+    return {
+        success: result.success,
+        output: result.output,
+        standardError,
+        standardOutput,
     }
 }
 
@@ -84,3 +127,8 @@ type AddArchivePieceParams = BaseAddPieceParams<PackageType.ARCHIVE> & {
 type AddPieceParams =
     | AddRegistryPieceParams
     | AddArchivePieceParams
+
+type RunParams<T extends Action> = {
+    step: T
+    projectId: ProjectId
+}
