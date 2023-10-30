@@ -21,9 +21,14 @@ export const sendTemplateMessage = createAction({
             displayName: 'Whatsapp number',
             required: true,
         }),
-        properties: Property.Object({
+        properties: Property.Json({
             displayName: 'Custom properties',
+            description: 'Custom properties to be used in the template, format JSON',
             required: false,
+            defaultValue: [{
+                "name": "name",
+                "value": "John"
+            }],
         }),
     },
     async run(context) {
