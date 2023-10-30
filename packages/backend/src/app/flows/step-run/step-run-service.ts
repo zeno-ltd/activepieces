@@ -5,6 +5,7 @@ import {
     StepRunResponse,
     ErrorCode,
     ExecuteActionOperation,
+    ExecutePieceOperation,
     flowHelper,
     FlowVersion,
     FlowVersionId,
@@ -68,6 +69,44 @@ export const stepRunService = {
             }
         }
     },
+    async run({ step, projectId }: RunParams<PieceAction>): Promise<StepRunResponse> {
+        return executeStandalonePiece({ step, projectId })
+    },
+}
+
+
+async function executeStandalonePiece({ step, projectId }: RunParams<PieceAction>): Promise<StepRunResponse> {
+    const { packageType, pieceType, pieceName, pieceVersion, actionName, input } = step.settings
+    if (isNil(actionName)) {
+        throw new ActivepiecesError({
+            code: ErrorCode.VALIDATION,
+            params: {
+                message: 'actionName is undefined',
+            },
+        })
+    }
+
+    const operation: ExecutePieceOperation = {
+        serverUrl: await getServerUrl(),
+        piece: {
+            packageType,
+            pieceType,
+            pieceName,
+            pieceVersion,
+            projectId,
+        },
+        actionName,
+        input,
+        projectId,
+    }
+
+    const { result, standardError, standardOutput } = await engineHelper.executePiece(operation)
+    return {
+        success: result.success,
+        output: result.output,
+        standardError,
+        standardOutput,
+    }
 }
 
 async function executePiece({ step, projectId, flowVersion, userId }: ExecuteParams<PieceAction>): Promise<StepRunResponse> {
@@ -241,5 +280,10 @@ type ExecuteParams<T extends Action> = {
     step: T
     userId: UserId
     flowVersion: FlowVersion
+    projectId: ProjectId
+}
+
+type RunParams<T extends Action> = {
+    step: T
     projectId: ProjectId
 }

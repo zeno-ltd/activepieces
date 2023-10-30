@@ -30,6 +30,7 @@ export enum TriggerHookType {
 export type EngineOperation =
     | ExecuteActionOperation
     | ExecuteCodeOperation
+    | ExecutePieceOperation
     | ExecuteFlowOperation
     | ExecutePropsOptions
     | ExecuteTriggerOperation<TriggerHookType>
@@ -46,6 +47,13 @@ export type ExecuteActionOperation = BaseEngineOperation & {
     piece: PiecePackage
     actionName: string
     flowVersion: FlowVersion
+    serverUrl: string,
+    input: Record<string, unknown>
+}
+
+export type ExecutePieceOperation = BaseEngineOperation & {
+    piece: PiecePackage
+    actionName: string
     serverUrl: string,
     input: Record<string, unknown>
 }

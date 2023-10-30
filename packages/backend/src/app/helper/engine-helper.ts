@@ -4,6 +4,7 @@ import {
     EngineOperation,
     EngineOperationType,
     ExecuteActionOperation,
+    ExecutePieceOperation,
     ExecuteFlowOperation,
     ExecutePropsOptions,
     ExecuteTriggerOperation,
@@ -315,6 +316,36 @@ export const engineHelper = {
         }
         finally {
             await sandboxProvisioner.release({ sandbox })
+        }
+    },
+
+    async executePiece(operation: ExecutePieceOperation): Promise<EngineHelperResponse<EngineHelperActionResult>> {
+        const { piece } = operation
+        piece.pieceVersion = await pieceMetadataService.getExactPieceVersion({
+            name: piece.pieceName,
+            version: piece.pieceVersion,
+            projectId: piece.projectId,
+        })
+
+        const sandbox = await sandboxProvisioner.provision({
+            type: SandBoxCacheType.PIECE,
+            pieceName: piece.pieceName,
+            pieceVersion: piece.pieceVersion,
+            pieces: [piece],
+        })
+
+        try {
+            const input = {
+                ...operation,
+                workerToken: await generateWorkerToken({ projectId: operation.projectId }),
+            }
+
+            return await execute(EngineOperationType.EXECUTE_ACTION, sandbox, input)
+        }
+        finally {
+            await sandboxProvisioner.release({
+                sandbox,
+            })
         }
     },
 
