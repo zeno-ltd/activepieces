@@ -1,5 +1,5 @@
 import { FastifyPluginCallbackTypebox } from '@fastify/type-provider-typebox'
-import { CreateStepRunRequest, PieceRunRequest } from './step-run-dto'
+import { CreateStepRunRequest } from './step-run-dto'
 import { stepRunService } from './step-run-service'
 
 export const stepRunController: FastifyPluginCallbackTypebox = (app, _opts, done) => {
@@ -15,16 +15,5 @@ export const stepRunController: FastifyPluginCallbackTypebox = (app, _opts, done
         })
         return result
     })
-
-    app.post('/piece', PieceRunRequest, async (req) => {
-        const { projectId } = req.principal
-
-        const result = await stepRunService.run({
-            step: req.body.piece,
-            projectId,
-        })
-        return result
-    })
-
     done()
 }
