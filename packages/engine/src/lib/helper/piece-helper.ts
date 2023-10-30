@@ -15,6 +15,7 @@ import {
     ActivepiecesError,
     ErrorCode,
     ExecuteActionOperation,
+    ExecutePieceOperation,
     ExecuteActionResponse,
     ExecuteCodeOperation,
     ExecutePropsOptions,
@@ -160,6 +161,97 @@ export const pieceHelper = {
             return {
                 success: false,
                 output: undefined,
+            }
+        }
+    },
+
+
+    async executePiece(params: ExecutePieceOperation): Promise<ExecuteActionResponse> {
+        const { piece: piecePackage, actionName, input } = params
+
+        const action = await getActionOrThrow({
+            pieceName: piecePackage.pieceName,
+            pieceVersion: piecePackage.pieceVersion,
+            actionName,
+        })
+
+        const piece = await pieceHelper.loadPieceOrThrow(piecePackage.pieceName, piecePackage.pieceVersion)
+
+        const executionState = new ExecutionState()
+
+        const resolvedProps = await variableService.resolve<
+        StaticPropsValue<PiecePropertyMap>
+        >({
+            unresolvedInput: input,
+            executionState: new ExecutionState(),
+            logs: false,
+        })
+
+        try {
+            const { processedInput, errors } =
+                await variableService.applyProcessorsAndValidators(
+                    resolvedProps,
+                    action.props,
+                    piece.auth,
+                )
+            if (Object.keys(errors).length > 0) {
+                throw new Error(JSON.stringify(errors))
+            }
+
+            const context: ActionContext = {
+                executionType: ExecutionType.BEGIN,
+                auth: processedInput[AUTHENTICATION_PROPERTY_NAME],
+                propsValue: processedInput,
+                server: {
+                    token: globals.workerToken!,
+                    apiUrl: globals.apiUrl!,
+                    publicUrl: globals.serverUrl!,
+                },
+                files: createFilesService({
+                    stepName: actionName,
+                    flowId: params.projectId + params.piece.pieceVersion,
+                    type: 'db',
+                }),
+                tags: createTagsManager(executionState),
+                store: createContextStore('', params.projectId + params.piece.pieceVersion),
+                connections: {
+                    get: async (key: string) => {
+                        try {
+                            const connection = await connectionService.obtain(key)
+                            if (!connection) {
+                                return null
+                            }
+                            return connection
+                        }
+                        catch (e) {
+                            return null
+                        }
+                    },
+                },
+                serverUrl: globals.serverUrl!,
+                run: {
+                    id: 'test-flow-run-id',
+                    stop: () => console.info('stopHook called!'),
+                    pause: () => console.info('pauseHook called!'),
+                },
+            }
+
+            // Legacy Code doesn't have test function
+            if (!isNil(action.test)) {
+                return {
+                    output: await action.test(context),
+                    success: true,
+                }
+            }
+            return {
+                output: await action.run(context),
+                success: true,
+            }
+        }
+        catch (e) {
+            return {
+                output: e instanceof Error ? await utils.tryParseJson(e.message) : e,
+                success: false,
             }
         }
     },

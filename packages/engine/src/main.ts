@@ -6,6 +6,7 @@ import {
     ExecutePropsOptions,
     ExecuteFlowOperation,
     ExecuteTriggerOperation,
+    ExecutePieceOperation,
     ExecutionState,
     ExecuteActionOperation,
     EngineResponse,
@@ -176,6 +177,29 @@ const executeCode = async (): Promise<void> => {
     }
 }
 
+const executePiece = async (): Promise<void> => {
+    try {
+        const input: ExecutePieceOperation = await utils.parseJsonFile(globals.inputFile)
+
+        globals.workerToken = input.workerToken!
+        globals.projectId = input.projectId
+        globals.serverUrl = input.serverUrl
+
+        const output = await pieceHelper.executePiece(input)
+        await writeOutput({
+            status: EngineResponseStatus.OK,
+            response: output,
+        })
+    }
+    catch (e) {
+        console.error(e)
+        await writeOutput({
+            status: EngineResponseStatus.ERROR,
+            response: utils.tryParseJson((e as Error).message),
+        })
+    }
+}
+
 const executeAction = async (): Promise<void> => {
     try {
         const input: ExecuteActionOperation = await utils.parseJsonFile(globals.inputFile)
@@ -272,6 +296,9 @@ const execute = async (): Promise<void> => {
         case EngineOperationType.EXECUTE_ACTION:
             await executeAction()
             break
+        case EngineOperationType.EXECUTE_PIECE:
+            await executePiece()
+            break    
         case EngineOperationType.EXECUTE_CODE:
             await executeCode()
             break

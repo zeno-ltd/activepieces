@@ -17,6 +17,7 @@ export enum EngineOperationType {
     EXECUTE_TRIGGER_HOOK = "EXECUTE_TRIGGER_HOOK",
     EXECUTE_VALIDATE_AUTH = "EXECUTE_VALIDATE_AUTH",
     EXECUTE_TEST = "EXECUTE_TEST",
+    EXECUTE_PIECE = "EXECUTE_PIECE"
 }
 
 export enum TriggerHookType {

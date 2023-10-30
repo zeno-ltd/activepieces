@@ -340,7 +340,7 @@ export const engineHelper = {
                 workerToken: await generateWorkerToken({ projectId: operation.projectId }),
             }
 
-            return await execute(EngineOperationType.EXECUTE_ACTION, sandbox, input)
+            return await execute(EngineOperationType.EXECUTE_PIECE, sandbox, input)
         }
         finally {
             await sandboxProvisioner.release({
