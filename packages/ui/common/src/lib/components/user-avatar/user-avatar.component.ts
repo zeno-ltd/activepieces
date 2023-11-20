@@ -5,9 +5,10 @@ import { ProjectService } from '../../service/project.service';
 import { ApFlagId, Project } from '@activepieces/shared';
 import { Observable } from 'rxjs';
 import { FlagService } from '../../service/flag.service';
-
 import { Store } from '@ngrx/store';
 import { ProjectSelectors } from '../../store/project/project.selector';
+import { environment } from '../../environments/environment';
+import { LocaleKey, LocalesService } from '../../service/locales.service';
 
 @Component({
   selector: 'ap-user-avatar',
@@ -18,7 +19,6 @@ import { ProjectSelectors } from '../../store/project/project.selector';
 export class UserAvatarComponent implements OnInit {
   showAvatarOuterCircle = false;
   currentUserEmail = 'Dev@ap.com';
-  // BEGIN EE
   projects$: Observable<Project[]>;
   selectedProject$: Observable<Project | undefined>;
   switchProject$: Observable<void>;
@@ -27,13 +27,19 @@ export class UserAvatarComponent implements OnInit {
   projectEnabled$: Observable<boolean>;
   showPlatform = false;
   showCommunity$: Observable<boolean>;
+  locales = environment.localesMap;
+  selectedLanguage = {
+    languageName: 'English',
+    locale: 'en',
+  };
+
   constructor(
     public authenticationService: AuthenticationService,
     private router: Router,
     private flagService: FlagService,
     private store: Store,
-    // BEGIN EE
-    private projectService: ProjectService // END EE
+    private projectService: ProjectService,
+    private localesService: LocalesService
   ) {
     this.showCommunity$ = this.flagService.isFlagEnabled(
       ApFlagId.SHOW_COMMUNITY
@@ -46,13 +52,16 @@ export class UserAvatarComponent implements OnInit {
       ApFlagId.PROJECT_MEMBERS_ENABLED
     );
     this.projects$ = this.store.select(ProjectSelectors.selectAllProjects);
-    this.selectedProject$ = this.store.select(ProjectSelectors.selectProject);
+    this.selectedProject$ = this.store.select(
+      ProjectSelectors.selectCurrentProject
+    );
     // END EE
+    this.selectedLanguage =
+      this.localesService.getCurrentLanguageFromLocalStorageOrDefault();
   }
   ngOnInit(): void {
     this.currentUserEmail = this.authenticationService.currentUser.email;
-    const decodedToken = this.authenticationService.getDecodedToken();
-    this.showPlatform = !!decodedToken && !!decodedToken['platformId'];
+    this.showPlatform = this.authenticationService.isPlatformOwner();
   }
 
   getDropDownLeftOffset(
@@ -104,5 +113,9 @@ export class UserAvatarComponent implements OnInit {
       '_blank',
       'noopener'
     );
+  }
+  redirectToLocale(locale: LocaleKey) {
+    this.localesService.setCurrentLocale(locale);
+    this.localesService.redirectToLocale(locale);
   }
 }

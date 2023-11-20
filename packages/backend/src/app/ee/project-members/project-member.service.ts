@@ -20,6 +20,7 @@ import {
 } from '@activepieces/shared'
 import { paginationHelper } from '../../helper/pagination/pagination-utils'
 import {
+    PlatformId,
     ProjectMember,
     ProjectMemberId,
     ProjectMemberRole,
@@ -28,28 +29,11 @@ import {
 } from '@activepieces/ee-shared'
 import { buildPaginator } from '../../helper/pagination/build-paginator'
 import { projectService } from '../../project/project-service'
-import { emailService } from '../helper/email-service'
+import { emailService } from '../helper/email/email-service'
 import { projectMembersLimit } from '../../ee/billing/usage/limits/members-limit'
 import { getEdition } from '../../helper/secret-helper'
 
 const projectMemberRepo = databaseConnection.getRepository(ProjectMemberEntity)
-
-async function createOrGetUser({ email }: { email: string }): Promise<User> {
-    const user = await userService.getOneByEmail({
-        email,
-    })
-    return user ?? await userService.create(
-        {
-            email,
-            password: apId(),
-            firstName: 'Unknown',
-            lastName: 'Unknown',
-            newsLetter: false,
-            trackEvents: true,
-        },
-        UserStatus.SHADOW,
-    )
-}
 
 export const projectMemberService = {
     async countTeamMembersIncludingOwner(projectId: ProjectId): Promise<number> {
@@ -57,17 +41,18 @@ export const projectMemberService = {
             projectId,
         }) + 1
     },
-    async send(
-        projectId: ProjectId,
-        { email, role }: SendInvitationRequest,
-    ): Promise<ProjectMember> {
+
+    async send({ platformId, projectId, email, role }: SendParams): Promise<ProjectMember> {
         await projectMembersLimit.limit({
             projectId,
         })
-        const invitedUser = await createOrGetUser({ email })
-        logger.info(
-            `User ${invitedUser.id} invited to project ${projectId} with role ${role}`,
-        )
+        const invitedUser = await createOrGetUser({
+            platformId,
+            email,
+        })
+
+        logger.info({ name: 'ProjectMemberService#send', platformId, projectId, email, role })
+
         const invitationId = apId()
         await projectMemberRepo.upsert(
             {
@@ -82,16 +67,18 @@ export const projectMemberService = {
         const member = await projectMemberRepo.findOneByOrFail({
             id: invitationId,
         })
-        emailService.sendInvitationEmail({
+        await emailService.sendInvitation({
             invitationId,
+            projectId,
             email,
-        }).catch((e) => logger.error(e, '[ProjectMemberService#send] sendemail'))
+        })
 
         return {
             ...member,
             email,
         }
     },
+
     async accept(invitationId: string): Promise<ProjectMemberSchema> {
         const projectMember = await projectMemberRepo.findOneBy({
             id: invitationId,
@@ -106,6 +93,9 @@ export const projectMemberService = {
         }
         await projectMemberRepo.update(projectMember.id, {
             status: ProjectMemberStatus.ACTIVE,
+        })
+        await userService.verify({
+            id: projectMember.userId,
         })
         return {
             ...projectMember,
@@ -181,6 +171,18 @@ export const projectMemberService = {
     ): Promise<void> {
         await projectMemberRepo.delete({ projectId, id: invitationId })
     },
+
+    async add({ userId, projectId, role, status }: AddParams): Promise<ProjectMemberSchema> {
+        const newProjectMember: NewProjectMember = {
+            id: apId(),
+            userId,
+            projectId,
+            role,
+            status,
+        }
+
+        return projectMemberRepo.save(newProjectMember)
+    },
 }
 
 function getStatusFromEdition(): ProjectMemberStatus {
@@ -195,3 +197,39 @@ function getStatusFromEdition(): ProjectMemberStatus {
     }
 }
 
+const createOrGetUser = async ({ platformId, email }: CreateOrGetUserParams): Promise<User> => {
+    const user = await userService.getByPlatformAndEmail({
+        platformId,
+        email,
+    })
+
+    return user ?? await userService.create({
+        email,
+        password: apId(),
+        firstName: 'Unknown',
+        lastName: 'Unknown',
+        newsLetter: false,
+        trackEvents: true,
+        status: UserStatus.INVITED,
+        platformId,
+    })
+}
+
+type AddParams = {
+    userId: UserId
+    projectId: ProjectId
+    role: ProjectMemberRole
+    status: ProjectMemberStatus
+}
+
+type NewProjectMember = Omit<ProjectMember, 'created' | 'updated' | 'email'>
+
+type SendParams = SendInvitationRequest & {
+    projectId: ProjectId
+    platformId: PlatformId | null
+}
+
+type CreateOrGetUserParams = {
+    platformId: PlatformId | null
+    email: string
+}

@@ -32,6 +32,8 @@ import { getEdition } from '../helper/secret-helper'
 import { ApEdition, ApEnvironment } from '@activepieces/shared'
 import { CustomDomainEntity } from '../ee/custom-domains/custom-domain.entity'
 import { PlatformEntity } from '../ee/platform/platform.entity'
+import { SigningKeyEntity } from '../ee/signing-key/signing-key-entity'
+import { OAuthAppEntity } from '../ee/oauth-apps/oauth-app.entity'
 
 const databaseType = system.get(SystemProp.DB_TYPE)
 
@@ -72,6 +74,8 @@ function getEntities(): EntitySchema<unknown>[] {
                 AppCredentialEntity,
                 PlatformEntity,
                 CustomDomainEntity,
+                SigningKeyEntity,
+                OAuthAppEntity,
             )
             break
         case ApEdition.ENTERPRISE:
@@ -79,6 +83,8 @@ function getEntities(): EntitySchema<unknown>[] {
                 ProjectMemberEntity,
                 PlatformEntity,
                 CustomDomainEntity,
+                SigningKeyEntity,
+                OAuthAppEntity,
             )
             break
         case ApEdition.COMMUNITY:

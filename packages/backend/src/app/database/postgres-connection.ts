@@ -71,6 +71,14 @@ import { StoreCodeInsideFlow1697969398200 } from './migration/common/16979693982
 import { AddPlatformToProject1698065083750 } from './migration/postgres/1698065083750-add-platform-to-project'
 import { AddCustomDomain1698077078271 } from '../ee/database/migrations/postgres/1698077078271-AddCustomDomain'
 import { AddTerminationReason1698323987669 } from './migration/postgres/1698323987669-AddTerminationReason'
+import { AddSigningKey1698602417745 } from './migration/postgres/1698602417745-add-signing-key'
+import { ManagedAuthnInitial1698700720482 } from './migration/postgres/1698700720482-managed-authn-initial'
+import { AddDisplayNameToSigningKey1698698190965 } from './migration/postgres/1698698190965-AddDisplayNameToSigningKey'
+import { AddOAuth2AppEntiity1699221414907 } from './migration/postgres/1699221414907-AddOAuth2AppEntiity'
+import { AddFilteredPiecesToPlatform1699281870038 } from './migration/postgres/1699281870038-add-filtered-pieces-to-platform'
+import { AddSmtpAndPrivacyUrlToPlatform1699491705906 } from './migration/postgres/1699491705906-AddSmtpAndPrivacyUrlToPlatform'
+import { UpdateUserStatusRenameShadowToInvited1699818680567 } from './migration/common/1699818680567-update-user-status-rename-shadow-to-invited'
+import { AddPlatformIdToUser1699901161457 } from './migration/postgres/1699901161457-add-platform-id-to-user'
 
 const getSslConfig = (): boolean | TlsOptions => {
     const useSsl = system.get(SystemProp.POSTGRES_USE_SSL)
@@ -131,6 +139,9 @@ const getMigrations = (): (new () => MigrationInterface)[] => {
         StoreCodeInsideFlow1697969398200,
         AddPlatformToProject1698065083750,
         AddTerminationReason1698323987669,
+        ManagedAuthnInitial1698700720482,
+        UpdateUserStatusRenameShadowToInvited1699818680567,
+        AddPlatformIdToUser1699901161457,
     ]
 
     const edition = getEdition()
@@ -157,6 +168,11 @@ const getMigrations = (): (new () => MigrationInterface)[] => {
                 AddPieceTypeAndPackageTypeToFlowTemplate1696245170062,
                 AddPlatform1697717995884,
                 AddCustomDomain1698077078271,
+                AddSigningKey1698602417745,
+                AddDisplayNameToSigningKey1698698190965,
+                AddOAuth2AppEntiity1699221414907,
+                AddFilteredPiecesToPlatform1699281870038,
+                AddSmtpAndPrivacyUrlToPlatform1699491705906,
             )
             break
         case ApEdition.ENTERPRISE:
@@ -165,6 +181,11 @@ const getMigrations = (): (new () => MigrationInterface)[] => {
                 ProjectMemberRelations1694381968985,
                 AddPlatform1697717995884,
                 AddCustomDomain1698077078271,
+                AddSigningKey1698602417745,
+                AddDisplayNameToSigningKey1698698190965,
+                AddOAuth2AppEntiity1699221414907,
+                AddFilteredPiecesToPlatform1699281870038,
+                AddSmtpAndPrivacyUrlToPlatform1699491705906,
             )
             break
         case ApEdition.COMMUNITY:

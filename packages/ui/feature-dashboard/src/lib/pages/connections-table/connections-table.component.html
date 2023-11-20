@@ -1,6 +1,6 @@
-<div class="ap-w-full ap-h-full ap-px-[30px] ap-pt-[50px]">
+<div class="ap-w-full ap-px-[30px] ap-pt-[50px]">
   <div class="ap-h-full">
-    <ap-page-title title="Connections" i18n-title></ap-page-title>
+    <ap-page-title [title]="title"></ap-page-title>
     <div class="ap-min-h-[70%]">
       <table mat-table [dataSource]="dataSource" class="ap-w-[100%]" aria-label="Runs" i18n-aria-label>
         <ng-container matColumnDef="app">
@@ -55,7 +55,7 @@
         </div>
       </ng-container>
       <ng-container *ngIf="dataSource.data.length===0 && (dataSource.isLoading$ | async) === false">
-        <div class="ap-flex ap-items-center ap-justify-center  ap-h-full ap-h-[500px]" i18n>
+        <div class="ap-flex ap-items-center ap-justify-center  ap-h-full ap-h-[500px] ap-py-8" i18n>
           No connections created yet
         </div>
       </ng-container>

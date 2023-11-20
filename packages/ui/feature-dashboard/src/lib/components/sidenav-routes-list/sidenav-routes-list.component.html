@@ -1,13 +1,12 @@
 <div
   class="ap-w-[75px] ap-bg-transparent ap-h-full ap-flex ap-flex-col ap-typegraphy-body-2 ap-items-center ap-gap-[20px] ap-p-3">
-  <ap-icon-button class="ap-mb-[10px]" [useSvgDefault]="true" [iconFilename]="'logo/logo.svg'"
-    [iconUrl]="(logoUrl$ | async )|| ''" tooltipText="Home" i18n-tooltipText (buttonClicked)="redirectHome(false)"
-    (auxclick)="redirectHome(true)"></ap-icon-button>
+  <ap-icon-button class="ap-mb-[10px]" [iconFilename]="'logo/logo.svg'" [iconUrl]="(logoUrl$ | async )|| ''"
+    tooltipText="Home" i18n-tooltipText (buttonClicked)="redirectHome(false)" [width]="22" [height]="19"
+    extraClasses="ap-fill-primary" (auxclick)="redirectHome(true)"></ap-icon-button>
 
 
-
-  <ng-container *ngIf="(hideSideRoutes$ | async) ===false ">
-    <div *ngFor="let r of sideNavRoutes" [matTooltip]="r.caption" [matTooltipPosition]="'right'"
+  <ng-container *ngFor="let r of (sideNavRoutes$ | async)">
+    <div [matTooltip]="r.caption" [matTooltipPosition]="'right'" *ngIf="r.showInSideNav$ | async"
       class="ap-w-full ap-flex-col ap-flex ap-border-transparent ap-justify-center ap-items-center ap-cursor-pointer ap-px-3"
       [routerLink]="['/' + r.route]">
       <div
@@ -23,6 +22,8 @@
       </div>
     </div>
   </ng-container>
+
+
   <div class="ap-flex-grow"></div>
   <app-billing-sidenav-item *ngIf="showBilling$ | async"></app-billing-sidenav-item>
   <div *ngIf="showSupport$ | async" (click)="openSupport()" matTooltip="Ask the Community" i18n-matTooltip
@@ -46,5 +47,3 @@
     <div class="ap-font-medium ap-text-[10px]" i18n>Docs</div>
   </div>
 </div>
-
-<ng-container *ngIf="removeChatbots$ | async"></ng-container>

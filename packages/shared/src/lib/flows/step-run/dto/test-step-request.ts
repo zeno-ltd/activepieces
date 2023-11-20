@@ -1,6 +1,6 @@
-import { Static, Type } from "@sinclair/typebox";
-import { PackageType, PieceType, VersionType } from '../../../pieces';
-import { ActionType } from "../../actions/action";
+import { Static, Type } from '@sinclair/typebox'
+import { PackageType, PieceType, VersionType } from '../../../pieces'
+import { ActionType } from '../../actions/action'
 
 export const CreateStepRunRequestBody = Type.Object({
     flowVersionId: Type.String(),
@@ -21,15 +21,15 @@ export const PieceRunRequestBody = Type.Object({
         input: Type.Record(Type.String({}), Type.Any()),
         inputUiInfo: Type.Object(
             {
-              currentSelectedData: Type.Optional(Type.Unknown()),
-              customizedInputs: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-              lastTestDate: Type.Optional(Type.String()),
+                currentSelectedData: Type.Optional(Type.Unknown()),
+                customizedInputs: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+                lastTestDate: Type.Optional(Type.String()),
             },
             {
-              additionalProperties: true
-            }
+                additionalProperties: true,
+            },
         ),  
-    })
+    }),
 })
 
 export const StepRunResponse = Type.Object({

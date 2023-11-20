@@ -7,7 +7,7 @@ import {
 import { flagService } from '../../../../flags/flag.service'
 import { ApFlagId, PrincipalType, ProjectType, isNil } from '@activepieces/shared'
 import { platformService } from '../../../platform/platform.service'
-import { tokenUtils } from '../../../../authentication/lib/token-utils'
+import { accessTokenManager } from '../../../../authentication/lib/access-token-manager'
 import { projectService } from '../../../../project/project-service'
 import { Platform, PlatformId } from '@activepieces/ee-shared'
 
@@ -44,12 +44,15 @@ export const enterpriseAuthenticationServiceHooks: AuthenticationServiceHooks = 
             value: true,
         })
 
-        const updatedToken = await tokenUtils.encode({
+        const updatedToken = await accessTokenManager.generateToken({
             id: user.id,
             type: PrincipalType.USER,
             projectId: project.id,
             projectType: ProjectType.PLATFORM_MANAGED,
-            platformId: platform.id,
+            platform: {
+                id: platform.id,
+                role: platform.ownerId === user.id ? 'OWNER' : 'MEMBER',
+            },
         })
 
         return {
@@ -74,12 +77,15 @@ export const enterpriseAuthenticationServiceHooks: AuthenticationServiceHooks = 
             }
         }
 
-        const updatedToken = await tokenUtils.encode({
+        const updatedToken = await accessTokenManager.generateToken({
             id: user.id,
             type: PrincipalType.USER,
             projectId: project.id,
             projectType: project.type,
-            platformId: platform.id,
+            platform: {
+                id: platform.id,
+                role: platform.ownerId === user.id ? 'OWNER' : 'MEMBER',
+            },
         })
 
         return {

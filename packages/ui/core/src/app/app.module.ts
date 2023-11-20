@@ -42,6 +42,10 @@ import {
   UiFeatureChatBotModule,
   chatbotMetadataResolver,
 } from '@activepieces/ui/feature-chatbot';
+import {
+  EeComponentsModule,
+  EmbedRedirectComponent,
+} from '@activepieces/ee-components';
 
 const monacoConfig: NgxMonacoEditorConfig = {
   baseUrl: '/assets', // configure base path for monaco editor. Starting with version 8.0.0 it defaults to './assets'. Previous releases default to '/assets'
@@ -105,6 +109,7 @@ export function playerFactory() {
     // This can't be lazy loaded
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,
+    EeComponentsModule,
     // END EE
     MonacoEditorModule.forRoot(monacoConfig),
     UiFeatureChatBotModule,
@@ -136,6 +141,20 @@ export function initializeAppCustomLogic(
       });
     });
 }
+
+const projectMemberRoute = {
+  path: '',
+  canActivate: [],
+  children: [
+    {
+      path: '',
+      loadChildren: () =>
+        import('@activepieces/ee/project-members').then(
+          (m) => m.EeProjectMembersModule
+        ),
+    },
+  ],
+};
 
 function dynamicRoutes(edition: string) {
   const coreRoutes: Route[] = [
@@ -222,6 +241,7 @@ function dynamicRoutes(edition: string) {
   switch (edition) {
     case ApEdition.CLOUD:
       editionRoutes = [
+        projectMemberRoute,
         {
           path: '',
           children: [
@@ -234,9 +254,33 @@ function dynamicRoutes(edition: string) {
             },
           ],
         },
+        {
+          path: 'embed',
+          component: EmbedRedirectComponent,
+        },
       ];
       break;
     case ApEdition.ENTERPRISE:
+      editionRoutes = [
+        projectMemberRoute,
+        {
+          path: '',
+          children: [
+            {
+              path: '',
+              loadChildren: () =>
+                import('@activepieces/ui/feature-authentication').then(
+                  (m) => m.UiFeatureAuthenticationModule
+                ),
+            },
+          ],
+        },
+        {
+          path: 'embed',
+          component: EmbedRedirectComponent,
+        },
+      ];
+      break;
     case ApEdition.COMMUNITY:
       editionRoutes = [
         {

@@ -5,6 +5,7 @@ dist
 tmp
 /out-tsc
 firebase-admin-sdk.json
+cache
 
 # SDK Build
 builds
@@ -37,7 +38,7 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
-
+/.nx
 # System Files
 .DS_Store
 Thumbs.db
@@ -55,3 +56,4 @@ packages/backend/.env
 
 # scratch pad
 scratch.md
+

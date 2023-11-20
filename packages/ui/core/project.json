@@ -62,7 +62,7 @@
           "node_modules/prismjs/plugins/line-numbers/prism-line-numbers.js",
           "node_modules/clipboard/dist/clipboard.min.js"
         ],
-        "i18nMissingTranslation": "warning",
+        "i18nMissingTranslation": "ignore",
         "localize": true
       },
       "configurations": {
@@ -94,10 +94,14 @@
           "extractLicenses": false,
           "sourceMap": true,
           "namedChunks": true,
-          "localize": ["en"]
+          "localize": [
+            "en"
+          ]
         },
         "fr": {
-          "localize": ["fr"]
+          "localize": [
+            "fr"
+          ]
         }
       },
       "defaultConfiguration": "production"
@@ -129,7 +133,7 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "outputs": [
         "{options.outputFile}"
       ],
@@ -159,10 +163,13 @@
   "i18n": {
     "sourceLocale": {
       "code": "en",
-      "baseHref": ""
-  },
+      "baseHref": "/"
+    },
     "locales": {
-      "fr": "packages/ui/core/src/locale/messages.fr.xlf"
+      "fr": "packages/ui/core/src/locale/messages.fr.xlf",
+      "it": "packages/ui/core/src/locale/messages.it.xlf",
+      "de": "packages/ui/core/src/locale/messages.de.xlf"
+
     }
   }
 }
